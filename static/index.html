@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>選擇題遊戲</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .option { display: block; margin: 10px; padding: 10px; cursor: pointer; border: 1px solid #ccc; }
+        .correct { background-color: lightgreen; }
+        .wrong { background-color: lightcoral; }
+    </style>
+</head>
+<body>
+    <h1>選擇題遊戲</h1>
+    <div id="question-container">
+        <p id="question-text">載入中...</p>
+        <div id="options"></div>
+    </div>
+    <p id="result"></p>
+    <button onclick="loadQuestion()">下一題</button>
+
+    <script>
+        let currentQuestion = null;
+        let userId = "user123";  // 模擬使用者 ID，可改成隨機生成
+
+        async function loadQuestion() {
+            const response = await fetch("http://127.0.0.1:8000/questions");
+            const data = await response.json();
+            if (data.questions.length > 0) {
+                currentQuestion = data.questions[Math.floor(Math.random() * data.questions.length)];
+                displayQuestion(currentQuestion);
+            }
+        }
+
+        function displayQuestion(question) {
+            document.getElementById("question-text").innerText = question.question;
+            const optionsDiv = document.getElementById("options");
+            optionsDiv.innerHTML = "";
+            ["A", "B", "C", "D"].forEach(opt => {
+                let button = document.createElement("button");
+                button.classList.add("option");
+                button.innerText = `(${opt}) ${question[`option_${opt}`]}`;
+                button.onclick = () => submitAnswer(question.id, opt);
+                optionsDiv.appendChild(button);
+            });
+        }
+
+        async function submitAnswer(questionId, userAnswer) {
+            const response = await fetch("http://127.0.0.1:8000/answer", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user_id: userId, question_id: questionId, user_answer: userAnswer })
+            });
+            const result = await response.json();
+            document.getElementById("result").innerText = result.correct ? "✔️ 正確！" : "❌ 錯誤！";
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

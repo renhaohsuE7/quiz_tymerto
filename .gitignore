@@ -1,0 +1,13 @@
+# 忽略虛擬環境
+venv/
+
+# Python 產生的檔案
+__pycache__/
+*.pyc
+*.pyo
+
+# VSCode 設定（如果有用 VSCode）
+.vscode/
+
+# 快取與日誌
+*.log
